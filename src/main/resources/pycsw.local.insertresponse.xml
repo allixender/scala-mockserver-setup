@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- pycsw 2.0.2 -->
+<csw:TransactionResponse xmlns:csw="http://www.opengis.net/cat/csw" xmlns:dc="http://www.purl.org/dc/elements/1.1/"
+                         xmlns:dct="http://www.purl.org/dc/terms/"
+                         xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <csw:TransactionSummary>
+        <csw:totalInserted>1</csw:totalInserted>
+    </csw:TransactionSummary>
+    <csw:InsertResult>
+        <csw:BriefRecord>
+            <csw:identifier>fake-identifier</csw:identifier>
+        </csw:BriefRecord>
+    </csw:InsertResult>
+</csw:TransactionResponse>

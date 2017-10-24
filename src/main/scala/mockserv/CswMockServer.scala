@@ -7,14 +7,15 @@ import org.mockserver.client.server.MockServerClient
 import scala.io.Source
 import scala.language.postfixOps
 
-class CswMockServer {
+class CswMockServer()(implicit mockServerClient: MockServerClient) {
 
-  val fileAsString = Source.fromURL(this.getClass().getResource("/pycsw.local.capabilities.xml")).getLines.mkString("\n")
+  val capaAsString = Source.fromURL(this.getClass().getResource("/pycsw.local.capabilities.xml")).getLines.mkString("\n")
+  val insertAsString = Source.fromURL(this.getClass().getResource("/pycsw.local.insertresponse.xml")).getLines.mkString("\n")
 
-  implicit val mockServerClient = new MockServerClient("localhost", 1080)
+  // implicit val mockServerClient = new MockServerClient("localhost", 1080)
 
-  def noCswGetCapa300: Unit = {
-    when get "/pycsw/csw" has {
+  def noCswGetCapa300() : Unit = {
+    when get "/pycsw/csw/" has {
       param("request", "GetCapabilities") and
         param("service", "CSW") and
         param("version", "3.0.0")
@@ -23,33 +24,31 @@ class CswMockServer {
     } always
   }
 
-  def cswGetCapaLocal = {
-    when get "/pycsw/csw" has {
+  def cswGetCapaLocal() : Unit = {
+    when get "/pycsw/csw/" has {
       param("request", "GetCapabilities") and
         param("service", "CSW") and
         param("version", "2.0.2")
-    } respond Ok + body(fileAsString) always
+    } respond Ok + body(capaAsString) always
   }
 
-  def postCswTransactionOk: Unit = {
-    when post "/pycsw/csw" has {
-        header("Content-type", "application/xml") and
-          regexBody(".*Transaction.*")
-
-    } respond {
-      Ok + """<csw:TransactionResponse xmlns:csw="http://www.opengis.net/cat/csw" xmlns:dc="http://www.purl.org/dc/elements/1.1/"
-        xmlns:dct="http://www.purl.org/dc/terms/" xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-             |   <csw:TransactionSummary>
-             |      <csw:totalInserted>1</csw:totalInserted>
-             |   </csw:TransactionSummary>
-             |<im/csw:TransactionResponse>""".stripMargin
-    } always
+  // /?service=CSW&version=2.0.2&request=GetCapabilities&sections=OperationsMetadata
+  def cswGetCapaLocalFuller() : Unit = {
+    when get "/pycsw/csw/" has {
+      param("service", "CSW") and
+        param("version", "2.0.2") and
+      param("request", "GetCapabilities") and
+      param("sections", "OperationsMetadata")
+    } respond Ok + body(capaAsString) always
   }
 
-  def getIndexUpdateOk: Unit = {
+  def postCswTransactionOk() : Unit = {
+    when post "/pycsw/csw" respond Ok + body(insertAsString) always
+  }
+
+  def getIndexUpdateOk() : Unit = {
     when get "/cswi-api/v1/buildIndex/smart" respond {
-      Ok
+      Ok + body("building index for smart")
     } always
   }
 
